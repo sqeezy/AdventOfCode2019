@@ -104,33 +104,53 @@ let input = @"147383
 141137
 102636"
 
-let fuelOfModule = float >> (fun m -> m/3.0) >> int >> (fun x -> x - 2)
+let partOneExampleInput1 = [|14|]
+let partOneExampleInput2 = [|1969|]
+let partOneExampleInput3 = [|100756|]
 
-let rec fuelWithFuelForFuel mass =
-    let fuelForMass = fuelOfModule mass
-    let fuelForFuel = fuelOfModule fuelForMass
-    if fuelForFuel <= 0 then
-        fuelForMass
-    else
-        fuelForMass + fuelForFuel + (fuelWithFuelForFuel fuelForFuel)
+let partTwoExampleInput1 = [|14|]
+let partTwoExampleInput2 = [|1969|]
+let partTwoExampleInput3 = [|100756|]
+
+
+let log<'a> s a = 
+    printfn "%s %A" s a
+    a
 
 let splitAtLinebreak (s : string) =
     s.Split([|'\n'|])
 
+let fuelOfMass = (fun m -> m/3) >> (fun x -> x - 2)
+
+let integerInput =
+    input 
+    |> splitAtLinebreak 
+    |> Array.map (int) 
+
+
 let partOneSolve = 
-            splitAtLinebreak 
-            >> Seq.map (int)
-            >> Seq.map fuelOfModule
+            Array.map fuelOfMass
             >> Seq.sum
 
+let rec fuelForModul currentFuel remainingMass =
+    let fuelForRemainingMass = fuelOfMass remainingMass
+    if fuelForRemainingMass <= 0
+    then currentFuel
+    else fuelForModul (currentFuel+fuelForRemainingMass) fuelForRemainingMass
+
 let partTwoSolve = 
-            splitAtLinebreak 
-            >> Seq.map (int)
-            >> Seq.map fuelWithFuelForFuel
+            Array.map (fun m -> fuelForModul 0 m)
             >> Seq.sum
 
 [<EntryPoint>]
 let main _ =
-    printfn "%i" (input |> partOneSolve)
-    printfn "%i" (input |> partTwoSolve)
+    printfn "Result Part One DemoInput(should be %i): %i" (2) (partOneExampleInput1 |> partOneSolve)
+    printfn "Result Part One DemoInput(should be %i): %i" (654) (partOneExampleInput2 |> partOneSolve)
+    printfn "Result Part One DemoInput(should be %i): %i" (33583) (partOneExampleInput3 |> partOneSolve)
+    printfn "Result Part One UserInput(should be 3160932): %i" (integerInput |> partOneSolve)
+
+    printfn "Result Part Two DemoInput(should be %i): %i" (2) (partTwoExampleInput1 |> partTwoSolve)
+    printfn "Result Part Two DemoInput(should be %i): %i" (966) (partTwoExampleInput2 |> partTwoSolve)
+    printfn "Result Part Two DemoInput(should be %i): %i" (50346) (partTwoExampleInput3 |> partTwoSolve)
+    printfn "Result Part Two UserInput(should be 4738549): %i" (integerInput |> partTwoSolve)
     0 // return an integer exit code
