@@ -9,10 +9,8 @@ type Operation =
     | Mul of Instructions
     | Exit
 
-type Program = int[]
-
 type State = {
-    Program : Program
+    Program : Map<int, int>
     NextIndex : int
 }
 
@@ -25,24 +23,32 @@ let getInstructions {Program=p;NextIndex=i} =
 let parseOperation state =
     let {Program=p;NextIndex=i} = state
     match p.[i] with
-    | 1     -> Add <| getInstructions state , state
-    | 2     -> Mul <| getInstructions state ,state
-    | 99    -> Exit, state
+    | 1     -> Add <| getInstructions state
+    | 2     -> Mul <| getInstructions state
+    | 99    -> Exit
+    | _     -> raise (ArgumentException "foo")
 
-let applyAdd add state =
+let applyAdd add  state =
+    let {Program=p;NextIndex=i} = state
+    let (a,b,t) = add
+    let sum = a + b
+    let updatedMap = Map.add t sum p
+    {state with Program = updatedMap};
 
+let applyMull add  state =
+    let {Program=p;NextIndex=i} = state
+    let (a,b,t) = add
+    let sum = a * b
+    let updatedMap = Map.add t sum p
+    {state with Program = updatedMap};
 
-let applyOperation (operation, state) =
-    match operation with
-    | Add (a,b,t), state -> 0 
-    | Mul (a,b,t), state -> 0
-    | Exit       , state -> 0
+let furtherIndex state = {state with NextIndex = state.NextIndex + 4}
 
 let rec solveProgram state =
     match parseOperation state with
-    | Add (a,b,t), state -> 0 
-    | Mul (a,b,t), state -> 0
-    | Exit       , state -> 0
+    | Add add -> applyAdd add state |> furtherIndex |> solveProgram
+    | Mul mul -> applyMull mul state |> furtherIndex |> solveProgram
+    | Exit    -> state
 
 
 [<EntryPoint>]
