@@ -104,24 +104,18 @@ let input = @"147383
 141137
 102636"
 
-type Module = {
-    Mass : int
-}
-
-let fuelOfModule {Mass=m} =
-    m |> float |> (fun m -> m/3.0) |> int |> (fun x -> x - 2)
+let fuelOfModule = float >> (fun m -> m/3.0) >> int >> (fun x -> x - 2)
 
 let splitAtLinebreak (s : string) =
     s.Split([|'\n'|])
 
+let partOneSolve = 
+            splitAtLinebreak 
+            >> Seq.map (int)
+            >> Seq.map fuelOfModule
+            >> Seq.sum
+
 [<EntryPoint>]
 let main _ =
-    let partOne =
-        input 
-            |> splitAtLinebreak
-            |> Seq.map (int)
-            |> Seq.map (fun m -> {Mass=m})
-            |> Seq.map fuelOfModule
-            |> Seq.sum
-    printfn "%i" partOne
+    printfn "%i" (input |> partOneSolve)
     0 // return an integer exit code
