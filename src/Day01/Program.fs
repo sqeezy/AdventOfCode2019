@@ -106,6 +106,14 @@ let input = @"147383
 
 let fuelOfModule = float >> (fun m -> m/3.0) >> int >> (fun x -> x - 2)
 
+let rec fuelWithFuelForFuel mass =
+    let fuelForMass = fuelOfModule mass
+    let fuelForFuel = fuelOfModule fuelForMass
+    if fuelForFuel <= 0 then
+        fuelForMass
+    else
+        fuelForMass + fuelForFuel + (fuelWithFuelForFuel fuelForFuel)
+
 let splitAtLinebreak (s : string) =
     s.Split([|'\n'|])
 
@@ -115,7 +123,14 @@ let partOneSolve =
             >> Seq.map fuelOfModule
             >> Seq.sum
 
+let partTwoSolve = 
+            splitAtLinebreak 
+            >> Seq.map (int)
+            >> Seq.map fuelWithFuelForFuel
+            >> Seq.sum
+
 [<EntryPoint>]
 let main _ =
     printfn "%i" (input |> partOneSolve)
+    printfn "%i" (input |> partTwoSolve)
     0 // return an integer exit code
