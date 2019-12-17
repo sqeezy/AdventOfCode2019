@@ -102,7 +102,17 @@ let rec cartesian = function
  | ([],ys) -> []
  | (x::xs, ys) -> (List.map(fun y -> x,y) ys) @ (cartesian (xs,ys))
 
-let possibleInputs = (parameterRange, parameterRange) |> cartesian
+let possibleInputs = 
+    (parameterRange, parameterRange)
+    |> cartesian
+
+let szenarios =
+    possibleInputs
+    |> List.map (fun param -> (getPartTwoAnsertFromParameters param, param |> buildNounVerbParams |> solveForUserInput))
+
+let matchPartTwo =
+    szenarios
+    |> List.filter (fun (code, output) -> output = 19690720)
 
 [<EntryPoint>]
 let main argv =
@@ -111,4 +121,5 @@ let main argv =
     solveForString "2,4,4,5,99,0"
     solveForString "1,1,1,4,99,5,6,0,99"
     printfn "Part One Result(should be 3790645): %i" (solveForUserInput partOneParametrization)
+    printfn "Part Two Result(should be [(6577, 19690720)]): %A" matchPartTwo
     0 // return an integer exit code
