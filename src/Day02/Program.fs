@@ -75,12 +75,20 @@ let printableProgram {Memory=p} =
 
 let solveForString s = printfn "Result for [%s] %s" s (s |> solve |> printableProgram)
 
-let parametrizeProgram (noun, verb) =  Map.add 1 noun >> Map.add 2 verb
+let buildNounVerbParams (noun, verb) =  Map.add 1 noun >> Map.add 2 verb
 
-let partOneParametrization = parametrizeProgram (12, 2)
+let partOneParametrization = buildNounVerbParams (12, 2)
 
 let partOneInput = input |> parseProgram |> partOneParametrization |> createSolverInput
 
+let solveWithParameters input parametrization = 
+    input |>
+    (parseProgram 
+    >> parametrization 
+    >> createSolverInput 
+    >> solveProgram)
+
+let solveForUserInput = solveWithParameters input
 
 
 [<EntryPoint>]
@@ -89,5 +97,5 @@ let main argv =
     solveForString "2,3,0,3,99"
     solveForString "2,4,4,5,99,0"
     solveForString "1,1,1,4,99,5,6,0,99"
-    printfn "Part One Result(should be 3790645): %i" (partOneInput |> solveProgram).Memory.[0]
+    printfn "Part One Result(should be 3790645): %i" (solveForUserInput partOneParametrization).Memory.[0]
     0 // return an integer exit code
