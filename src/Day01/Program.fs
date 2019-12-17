@@ -112,11 +112,6 @@ let partTwoExampleInput1 = [|14|]
 let partTwoExampleInput2 = [|1969|]
 let partTwoExampleInput3 = [|100756|]
 
-
-let log<'a> s a = 
-    printfn "%s %A" s a
-    a
-
 let splitAtLinebreak (s : string) =
     s.Split([|'\n'|])
 
