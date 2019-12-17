@@ -65,31 +65,44 @@ let parseProgram (input : string) =
     |> Map.ofArray
 
 let createSolverInput program = {Memory = program; InstructionPointer=0}
-
 let parseSolverInput = parseProgram >> createSolverInput
-
-let solve = parseSolverInput >> solveProgram
-
-let printableProgram {Memory=p} =
-    p |> Map.toArray |> Array.map snd |> Array.fold (fun s value-> sprintf "%s%i;"s value ) ""
-
-let solveForString s = printfn "Result for [%s] %s" s (s |> solve |> printableProgram)
-
 let buildNounVerbParams (noun, verb) =  Map.add 1 noun >> Map.add 2 verb
-
-let partOneParametrization = buildNounVerbParams (12, 2)
-
-let partOneInput = input |> parseProgram |> partOneParametrization |> createSolverInput
+let getProgramResult (state:State) = state.Memory.[0]
 
 let solveWithParameters input parametrization = 
     input |>
     (parseProgram 
     >> parametrization 
     >> createSolverInput 
-    >> solveProgram)
+    >> solveProgram
+    >> getProgramResult)
+
 
 let solveForUserInput = solveWithParameters input
 
+// for examples
+let printableProgram {Memory=p} =
+    p |> Map.toArray |> Array.map snd |> Array.fold (fun s value-> sprintf "%s%i;"s value ) ""
+let solve = parseSolverInput >> solveProgram
+let solveForString s = printfn "Result for [%s] %s" s (s |> solve |> printableProgram)
+
+// part one specific
+let partOneParametrization = buildNounVerbParams (12, 2)
+
+// part two specific
+
+let getPartTwoAnsertFromParameters (noun, verb) =
+    100 * noun + verb
+
+let parameterRange = [0..99]
+
+let rec cartesian = function
+ | ([],[]) -> []
+ | (xs,[]) -> []
+ | ([],ys) -> []
+ | (x::xs, ys) -> (List.map(fun y -> x,y) ys) @ (cartesian (xs,ys))
+
+let possibleInputs = (parameterRange, parameterRange) |> cartesian
 
 [<EntryPoint>]
 let main argv =
@@ -97,5 +110,5 @@ let main argv =
     solveForString "2,3,0,3,99"
     solveForString "2,4,4,5,99,0"
     solveForString "1,1,1,4,99,5,6,0,99"
-    printfn "Part One Result(should be 3790645): %i" (solveForUserInput partOneParametrization).Memory.[0]
+    printfn "Part One Result(should be 3790645): %i" (solveForUserInput partOneParametrization)
     0 // return an integer exit code
