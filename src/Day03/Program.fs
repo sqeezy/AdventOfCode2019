@@ -1,5 +1,6 @@
 ﻿// Learn more about F# at http://fsharp.org
 
+open Shared
 open System
 open Shared.String
 
@@ -8,6 +9,27 @@ L993,U810,L931,D139,R114,D77,L75,U715,R540,D994,L866,U461,R340,D179,R314,D423,R6
 
 type Direction = Left | Up | Right | Down
 type WireSection = (Direction * int)
+type Wire = WireSection array
+type Position = (int * int)
+type Field =
+    | Empty
+    | One of Direction
+    | Two
+type WireField = Map<Position, Field>
+type WireApplicationState = (WireField * Position)
+let start = (0, 0)
+
+let applyWire field wire =
+    let initialApplicationState = (field, start)
+    Array.fold (fun (field, currentPosition) (direction, sectionLength) ->
+        // TODO
+        (field, currentPosition)
+    )
+
+let emptyField =
+    List.cartesian ([0..999], [0..999])
+    |> List.map (fun pos -> (pos, Empty))
+    |> Map.ofList
 
 let parseWireSection (s:string) =
     match s with
@@ -16,6 +38,11 @@ let parseWireSection (s:string) =
     | Prefix "R" rest -> (Right, rest |> int)
     | Prefix "D" rest -> (Right, rest |> int)
     | _               -> raise (Exception "Input Invalid")
+
+let parseWires =
+    (split '\n')
+    >> Array.map (split ',')
+    >> Array.map (Array.map parseWireSection)
 
 [<EntryPoint>]
 let main argv =

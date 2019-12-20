@@ -6,6 +6,11 @@ module String =
             Some(s.Substring(p.Length))
         else
             None
+    let split char (s : string) =
+        s.Split [|char|]
+
+    let splitMany chars (s : string) =
+        s.Split chars
 
 module List =
     let rec cartesian = function
