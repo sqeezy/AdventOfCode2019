@@ -16,34 +16,40 @@ let directionVectors = function
     | Down -> (0, -1)
 
 type WireSection = (Direction * int)
-type Wire = WireSection array
+type Wire = {
+    Sections : WireSection array
+    Id : Guid
+}
 type Position = (int * int)
 let (.*) ((x,y):Position) (scalar : int) = (x * scalar, y * scalar)
 let (.+) (x1, y1) (x2, y2)  = (x1 + x2, y1 + y2)
 type Field =
-    | One
+    | One of Guid
     | Two
 type WireField = Map<Position, Field>
-type WireApplicationState = (WireField * Position)
+type WireApplicationState = (WireField * Position * Guid)
 let start = (0, 0)
 
-let applyPosition (curField:WireField) position =
+let applyPositionForGuid id (curField:WireField) position =
     match Map.tryFind position curField with
-    | None -> Map.add position One curField
+    | None -> Map.add position (One id) curField
     | Some field ->
         match field with
-        | One -> Map.add position Two curField
+        | One currentId when currentId <> id ->
+             Map.add position Two curField
+        | One _  -> curField
         | Two -> raise (Exception "")
 
-let wireFolder ((field:WireField), currentPosition) (direction, sectionLength) =
+let wireFolder (field, currentPosition, id) (direction, sectionLength) =
     let newPositions = [1..sectionLength] |> List.map (fun i -> currentPosition .+ ((direction |> directionVectors) .* i))
+    let applyPosition = applyPositionForGuid id
     let newField = List.fold applyPosition field newPositions
     let newCurrentPosition = newPositions |> List.rev |> List.head
-    (newField, newCurrentPosition)
+    (newField, newCurrentPosition, id)
 
-let applyWire field wire =
-    let initialApplicationState = (field, start)
-    let (filledField, _ ) = Array.fold wireFolder initialApplicationState wire
+let applyWire field {Sections = sections; Id = id} =
+    let initialApplicationState = (field, start, id)
+    let (filledField, _ , _) = Array.fold wireFolder initialApplicationState sections
     filledField
 
 let emptyField = Map.empty
@@ -56,17 +62,21 @@ let parseWireSection (s:string) =
     | Prefix "D" rest -> (Down, rest |> int)
     | _               -> raise (Exception (sprintf "Input Invalid: %s" s))
 
+let wire sections = 
+    {Sections = sections; Id = Guid.NewGuid()}
+
 let layoutWires =
     (split '\n')
     >> Array.map (split ',')
     >> Array.map (Array.map parseWireSection)
+    >> Array.map wire
     >> Array.fold applyWire emptyField
     >> Map.filter (fun _ field -> field = Two)
     >> Map.toList
     >> List.map fst 
     >> List.sortBy (fun (x, y)-> Math.Abs x + Math.Abs y)
     >> List.head
-    >> (fun (x, y) -> x + y)
+    >> (fun (x, y) -> Math.Abs x + Math.Abs y)
 
 let example1 = @"R75,D30,R83,U83,L12,D49,R71,U7,L72
 U62,R66,U55,R34,D71,R55,D58,R83";
