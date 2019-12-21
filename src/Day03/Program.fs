@@ -65,7 +65,7 @@ let parseWireSection (s:string) =
 let wire sections = 
     {Sections = sections; Id = Guid.NewGuid()}
 
-let layoutWires =
+let solvePartOne =
     (split '\n')
     >> Array.map (split ',')
     >> Array.map (Array.map parseWireSection)
@@ -78,6 +78,8 @@ let layoutWires =
     >> List.head
     >> (fun (x, y) -> Math.Abs x + Math.Abs y)
 
+let solvePartTwo = solvePartOne
+
 let partOneExample1 = @"R75,D30,R83,U83,L12,D49,R71,U7,L72
 U62,R66,U55,R34,D71,R55,D58,R83";
 
@@ -87,7 +89,13 @@ U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"
 [<EntryPoint>]
 let main _ =
     
-    printfn "%A\t(159  expected)" (layoutWires partOneExample1)
-    printfn "%A\t(135  expected)" (layoutWires partOneExample2)
-    printfn "%A\t(1225 expected)" (layoutWires userInput)
+    printfn "Part One"
+    printfn "Example One: %A\t(159  expected)" (solvePartOne partOneExample1)
+    printfn "Example Two: %A\t(135  expected)" (solvePartOne partOneExample2)
+    printfn "User Input:  %A\t(1225 expected)" (solvePartOne userInput)
+
+    printfn "Part Two"
+    printfn "Example One: %A\t(610  expected)" (solvePartTwo partOneExample1)
+    printfn "Example Two: %A\t(410  expected)" (solvePartTwo partOneExample2)
+    printfn "User Input:  %A\t(???? expected)" (solvePartTwo userInput)
     0 // return an integer exit code
